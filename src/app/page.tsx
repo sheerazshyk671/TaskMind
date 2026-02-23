@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Navbar } from '@/components/layout/Navbar';
 import { TaskMindApp } from '@/components/tasks/TaskMindApp';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle2, Zap, Shield, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Zap, Shield } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useState, useEffect } from 'react';
@@ -36,16 +36,11 @@ export default function Home() {
           <div className="py-12 lg:py-24">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8 text-center lg:text-left animate-in fade-in slide-in-from-left-4 duration-700">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                  <Sparkles className="h-4 w-4" />
-                  Now with AI suggestions
-                </div>
                 <h1 className="text-5xl lg:text-7xl font-headline font-extrabold tracking-tight text-foreground leading-tight">
                   Reach the <span className="text-primary italic">Zenith</span> of Productivity.
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0">
-                  TaskMind is more than a list. It's an AI-powered partner that helps you focus, 
-                  organize, and achieve your most important goals with ease.
+                  TaskPilot helps you focus, organize, and achieve your most important goals with ease.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
                   <Button 
@@ -72,7 +67,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Zap className="h-5 w-5 text-accent" />
-                    <span className="text-sm font-medium text-muted-foreground">AI Suggestions</span>
+                    <span className="text-sm font-medium text-muted-foreground">Smart Workflows</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
@@ -86,7 +81,7 @@ export default function Home() {
                 <div className="relative bg-white p-2 rounded-[2.5rem] shadow-2xl overflow-hidden border">
                   <Image 
                     src={PlaceHolderImages.find(img => img.id === 'hero-productivity')?.imageUrl || 'https://picsum.photos/seed/taskmind/1200/600'} 
-                    alt="TaskMind App Workspace" 
+                    alt="TaskPilot App Workspace" 
                     width={1200}
                     height={600}
                     className="rounded-[2rem] object-cover"
@@ -105,18 +100,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-
-                <div className="absolute -top-6 -right-6 bg-white p-4 rounded-2xl shadow-xl border animate-pulse">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                      <Sparkles className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold">AI Tip</p>
-                      <p className="text-[10px] text-muted-foreground">Try delegating task #4</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -127,10 +110,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-10 h-8 bg-primary/20 rounded-lg flex items-center justify-center px-1">
-              <span className="text-primary font-bold text-sm">TM</span>
+              <span className="text-primary font-bold text-sm">TP</span>
             </div>
             <span className="font-headline font-bold tracking-tight text-foreground">
-              TaskMind
+              TaskPilot
             </span>
           </div>
           <p className="text-sm text-muted-foreground">

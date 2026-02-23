@@ -5,8 +5,8 @@ import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'TaskMind - Elevate Your Productivity',
-  description: 'A modern, AI-powered to-do list for high achievers.',
+  title: 'TaskPilot - Elevate Your Productivity',
+  description: 'A modern to-do list for high achievers.',
 };
 
 export default function RootLayout({

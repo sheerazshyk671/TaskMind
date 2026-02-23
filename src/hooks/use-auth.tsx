@@ -37,7 +37,7 @@ export function useAuth() {
       await signInAnonymously(auth);
       toast({
         title: "Welcome to the Demo!",
-        description: "You're exploring TaskMind as a guest. Your tasks will be saved for this session.",
+        description: "You're exploring TaskPilot as a guest. Your tasks will be saved for this session.",
       });
     } catch (error: any) {
       console.error("Error signing in as guest", error);

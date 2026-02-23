@@ -23,10 +23,10 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
             <div className="w-12 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 px-2">
-              <span className="text-white font-headline font-extrabold text-xl">TM</span>
+              <span className="text-white font-headline font-extrabold text-xl">TP</span>
             </div>
             <span className="text-2xl font-headline font-extrabold tracking-tight text-primary">
-              Task<span className="text-foreground">Mind</span>
+              Task<span className="text-foreground">Pilot</span>
             </span>
           </div>
 

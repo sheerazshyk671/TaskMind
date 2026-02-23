@@ -5,7 +5,6 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection, query, orderBy } from 'firebase/firestore';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
-import { AISuggestions } from './AISuggestions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ClipboardList, LayoutDashboard, CheckCircle2, ListTodo } from 'lucide-react';
@@ -112,10 +111,6 @@ export function TaskMindApp() {
         </div>
       </section>
 
-      {/* AI Section */}
-      <section>
-        <AISuggestions existingTasks={tasks || []} />
-      </section>
     </div>
   );
 }

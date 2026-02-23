@@ -2,10 +2,9 @@
 
 import React from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
-import { AISuggestions } from './AISuggestions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ClipboardList, LayoutDashboard } from 'lucide-react';
@@ -59,8 +58,6 @@ export function TaskZenithApp() {
             </div>
           </div>
         </div>
-
-        <AISuggestions existingTasks={tasks || []} />
       </div>
 
       {/* Main Task List Section */}

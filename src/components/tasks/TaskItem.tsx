@@ -7,10 +7,9 @@ import { doc, serverTimestamp } from 'firebase/firestore';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Edit2, Check, X, Calendar as CalendarIcon, Sparkles, Plus, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, Edit2, Check, X, Calendar as CalendarIcon, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, isPast, isToday } from 'date-fns';
-import { suggestSubtasks } from '@/ai/flows/suggest-subtasks-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -22,8 +21,6 @@ interface TaskItemProps {
 export function TaskItem({ task }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState(task.description);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [showSubtasks, setShowSubtasks] = useState(true);
   const [manualSubtaskDesc, setManualSubtaskDesc] = useState('');
   
@@ -55,19 +52,6 @@ export function TaskItem({ task }: TaskItemProps) {
     setIsEditing(false);
   };
 
-  const handleGetSubtasks = async () => {
-    setIsGenerating(true);
-    try {
-      const result = await suggestSubtasks({ taskDescription: task.description });
-      setAiSuggestions(result.subtasks);
-      setShowSubtasks(true);
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to generate subtasks.' });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const handleAddSubtask = (subtaskDesc: string) => {
     const currentSubtasks = task.subtasks || [];
     const newSubtask = {
@@ -80,8 +64,6 @@ export function TaskItem({ task }: TaskItemProps) {
       subtasks: [...currentSubtasks, newSubtask],
       updatedAt: serverTimestamp()
     });
-
-    setAiSuggestions(prev => prev.filter(s => s !== subtaskDesc));
   };
 
   const handleManualAddSubtask = () => {
@@ -177,16 +159,6 @@ export function TaskItem({ task }: TaskItemProps) {
 
         {!isEditing && (
           <div className="flex items-center gap-1">
-             <Button 
-              size="icon" 
-              variant="ghost" 
-              onClick={handleGetSubtasks}
-              disabled={isGenerating}
-              className="h-8 w-8 text-accent hover:text-accent hover:bg-accent/10"
-              title="Suggest subtasks"
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            </Button>
             <Button 
               size="icon" 
               variant="ghost" 
@@ -214,35 +186,6 @@ export function TaskItem({ task }: TaskItemProps) {
           </div>
         )}
       </div>
-
-      {/* AI Suggestions Display */}
-      {aiSuggestions.length > 0 && (
-        <div className="px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="bg-accent/5 rounded-xl border border-accent/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-accent flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> AI Breakdown
-              </span>
-              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setAiSuggestions([])}>
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-            <div className="grid gap-2">
-              {aiSuggestions.map((suggestion, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-white/50 p-2 rounded-lg border border-accent/10 text-xs">
-                  <span>{suggestion}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-accent" onClick={() => {
-                    handleAddSubtask(suggestion);
-                    toast({ title: 'Subtask added', description: 'Task breakdown updated.' });
-                  }}>
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Subtasks Section */}
       {showSubtasks && (
