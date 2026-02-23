@@ -8,6 +8,6 @@ runConfig:
 
 env:
   - variable: GOOGLE_GENAI_API_KEY
-    secret: "AIzaSyDAfRREwYr08xPbMtzfBdqh_bhgvjiIZr0"
+    value: "AIzaSyDAfRREwYr08xPbMtzfBdqh_bhgvjiIZr0"
     availability:
       - RUNTIME
