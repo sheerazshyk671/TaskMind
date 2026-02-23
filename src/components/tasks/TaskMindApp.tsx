@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from 'react';
@@ -31,64 +30,9 @@ export function TaskMindApp() {
   const completedSubtasks = tasks?.reduce((acc, t) => acc + (t.subtasks?.filter((s: any) => s.isCompleted).length || 0), 0) || 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-8">
-      {/* Sidebar/Stats Section */}
-      <div className="lg:col-span-4 order-2 lg:order-1">
-        <div className="space-y-6 sticky top-24">
-          <div className="bg-card p-6 rounded-2xl border shadow-sm">
-            <div className="flex items-center gap-2 mb-6 text-primary">
-              <LayoutDashboard className="h-6 w-6" />
-              <h2 className="text-xl font-headline font-bold">Your Progress</h2>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground font-medium">Main Tasks</span>
-                  <span className="font-bold">{completedTasks} / {totalTasks}</span>
-                </div>
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary transition-all duration-500 ease-in-out" 
-                    style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground font-medium">Execution Progress</span>
-                  <span className="font-bold text-accent">{completedSubtasks} / {totalSubtasks}</span>
-                </div>
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-accent transition-all duration-500 ease-in-out" 
-                    style={{ width: `${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 text-center">
-                  <ListTodo className="h-4 w-4 text-primary mx-auto mb-1" />
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Focus</p>
-                  <p className="text-xl font-bold text-primary">{totalTasks - completedTasks}</p>
-                </div>
-                <div className="bg-accent/5 p-4 rounded-xl border border-accent/10 text-center">
-                  <CheckCircle2 className="h-4 w-4 text-accent mx-auto mb-1" />
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Wins</p>
-                  <p className="text-xl font-bold text-accent-foreground">{completedTasks}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <AISuggestions existingTasks={tasks || []} />
-        </div>
-      </div>
-
-      {/* Main Task List Section */}
-      <div className="lg:col-span-8 space-y-6 order-1 lg:order-2">
+    <div className="space-y-8 py-8 max-w-4xl mx-auto px-4 md:px-6">
+      {/* Tasks Section */}
+      <section className="space-y-6">
         <div className="bg-white/50 backdrop-blur-sm p-2 rounded-2xl border sticky top-4 z-10 shadow-sm">
           <TaskForm />
         </div>
@@ -117,7 +61,61 @@ export function TaskMindApp() {
             </div>
           </ScrollArea>
         </div>
-      </div>
+      </section>
+
+      {/* Progress Section */}
+      <section className="bg-card p-6 rounded-2xl border shadow-sm">
+        <div className="flex items-center gap-2 mb-6 text-primary">
+          <LayoutDashboard className="h-6 w-6" />
+          <h2 className="text-xl font-headline font-bold">Your Progress</h2>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground font-medium">Main Tasks</span>
+              <span className="font-bold">{completedTasks} / {totalTasks}</span>
+            </div>
+            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-500 ease-in-out"
+                style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground font-medium">Execution Progress</span>
+              <span className="font-bold text-accent">{completedSubtasks} / {totalSubtasks}</span>
+            </div>
+            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+              <div
+                className="h-full bg-accent transition-all duration-500 ease-in-out"
+                style={{ width: `${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 text-center">
+              <ListTodo className="h-4 w-4 text-primary mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground uppercase font-bold">Focus</p>
+              <p className="text-xl font-bold text-primary">{totalTasks - completedTasks}</p>
+            </div>
+            <div className="bg-accent/5 p-4 rounded-xl border border-accent/10 text-center">
+              <CheckCircle2 className="h-4 w-4 text-accent mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground uppercase font-bold">Wins</p>
+              <p className="text-xl font-bold text-accent-foreground">{completedTasks}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Section */}
+      <section>
+        <AISuggestions existingTasks={tasks || []} />
+      </section>
     </div>
   );
 }
