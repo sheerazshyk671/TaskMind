@@ -1,0 +1,51 @@
+
+/**
+ * TaskMind Firestore Security Rules
+ * 
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model where all data is private by default. 
+ * Access is granted only to the authenticated user whose UID matches the document path 
+ * or the ownership fields within the data.
+ * 
+ * Data Structure:
+ * All application data is organized hierarchically under the /users/{userId} path:
+ * - /users/{userId}: Stores the UserProfile document.
+ * - /users/{userId}/tasks/{taskId}: Stores Task documents belonging to that specific user.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- COLLECTION RULES ---
+
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      match /tasks/{taskId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+  }
+}

@@ -1,0 +1,155 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user within the TaskMind application, primarily for associating tasks. Authentication details are managed externally via Google Sign-In.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity. This ID typically maps to an external authentication system's user ID."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, often retrieved from the authentication provider, used for display purposes.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's preferred display name or full name, typically provided by the authentication system."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "displayName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a single to-do item for a user in the TaskMind application, including its status, details, and nested subtasks.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Task entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile entity who owns this task."
+        },
+        "description": {
+          "type": "string",
+          "description": "The detailed description or title of the task."
+        },
+        "isCompleted": {
+          "type": "boolean",
+          "description": "Indicates whether the task has been marked as completed."
+        },
+        "subtasks": {
+          "type": "array",
+          "description": "A list of smaller, actionable steps derived from the main task.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "isCompleted": { "type": "boolean" }
+            },
+            "required": ["id", "description", "isCompleted"]
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the task record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the task record was last updated.",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "An optional due date for when the task should be completed.",
+          "format": "date-time"
+        },
+        "priority": {
+          "type": "string",
+          "description": "The priority level of the task (e.g., 'low', 'medium', 'high')."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "description",
+        "isCompleted",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous",
+      "google.com"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": {
+            "$ref": "#/backend/entities/Task"
+          },
+          "description": "Stores individual tasks associated with a specific user, including nested subtasks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this task."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier for a specific task."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "Tasks are stored as subcollections of users to ensure path-based ownership and isolation. Subtasks are stored as an array within the Task document for atomic updates and simple management of task-specific hierarchies."
+  }
+}

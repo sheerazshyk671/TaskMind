@@ -1,0 +1,11 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-productivity",
+      "description": "A clean, modern workspace symbolizing productivity",
+      "imageUrl": "https://picsum.photos/seed/taskmind/1200/600",
+      "imageHint": "productivity workspace"
+    }
+  ]
+}

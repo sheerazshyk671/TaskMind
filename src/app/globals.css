@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 228 35% 96%;
+    --foreground: 231 40% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 231 40% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 231 40% 10%;
+    --primary: 231 48% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 228 35% 92%;
+    --secondary-foreground: 231 48% 48%;
+    --muted: 228 20% 92%;
+    --muted-foreground: 231 20% 45%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 231 40% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 228 20% 88%;
+    --input: 228 20% 88%;
+    --ring: 231 48% 48%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 231 40% 10%;
+    --foreground: 210 40% 98%;
+    --card: 231 45% 12%;
+    --card-foreground: 210 40% 98%;
+    --popover: 231 45% 12%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 231 60% 65%;
+    --primary-foreground: 231 40% 10%;
+    --secondary: 231 30% 20%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 231 30% 20%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 231 40% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 231 30% 20%;
+    --input: 231 30% 20%;
+    --ring: 231 60% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+.task-item-enter {
+  animation: slide-in 0.3s ease-out forwards;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
