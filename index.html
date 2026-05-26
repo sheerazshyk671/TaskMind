@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>TaskMind | AI-Powered Smart Task Manager</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .glass-container {
+      background: rgba(30, 27, 75, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.5), 0 0 60px rgba(99, 102, 241, 0.15);
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem 2rem 2.2rem;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    h1, h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      justify-content: center;
+      text-align: center;
+    }
+    h1 i {
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.2rem;
+    }
+    .auth-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      background: rgba(51, 65, 85, 0.3);
+      border-radius: 3rem;
+      padding: 0.7rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    .user-info i {
+      font-size: 1.8rem;
+      color: #818cf8;
+    }
+    button {
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 0.6rem 1.3rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: #e2e8f0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    button:hover {
+      background: rgba(71, 85, 105, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      border-color: rgba(129, 140, 248, 0.4);
+    }
+    .primary-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
+    }
+    .ai-btn {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      color: white;
+      border: none;
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
+    }
+    .ai-btn:hover {
+      box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5);
+    }
+    .ai-btn i {
+      animation: subtlePulse 2s infinite;
+    }
+    @keyframes subtlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .task-input-area {
+      display: flex;
+      gap: 0.8rem;
+      margin: 1.8rem 0 1.5rem;
+      flex-wrap: wrap;
+    }
+    .task-input-area input, .task-input-area select {
+      padding: 0.9rem 1.4rem;
+      border-radius: 3rem;
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      background: rgba(51, 65, 85, 0.4);
+      backdrop-filter: blur(4px);
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+      color: #e2e8f0;
+    }
+    .task-input-area input {
+      flex: 2;
+      min-width: 220px;
+    }
+    .task-input-area input[type="date"] {
+      flex: 1;
+      min-width: 150px;
+      color-scheme: dark;
+    }
+    .task-input-area input::placeholder {
+      color: #64748b;
+    }
+    .task-input-area input:focus, .task-input-area select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .tasks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.2rem 0 0.8rem;
+    }
+    .task-list {
+      list-style: none;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 5px;
+      margin-bottom: 1.5rem;
+    }
+    .task-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .task-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+    }
+    .task-item {
+      background: rgba(51, 65, 85, 0.4);
+      backdrop-filter: blur(8px);
+      border-radius: 1.5rem;
+      padding: 1rem 1.4rem;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      transition: all 0.3s;
+      animation: slideIn 0.3s ease;
+    }
+    .task-item:hover {
+      border-color: rgba(129, 140, 248, 0.4);
+      background: rgba(71, 85, 105, 0.5);
+    }
+    .task-item.completed {
+      opacity: 0.6;
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .task-text {
+      font-weight: 500;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .deadline-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 1rem;
+      background: rgba(6, 182, 212, 0.2);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .deadline-badge.overdue {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .priority-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2rem;
+      letter-spacing: 0.5px;
+    }
+    .high-priority { 
+      background: rgba(239, 68, 68, 0.2); 
+      color: #fca5a5; 
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .medium-priority { 
+      background: rgba(245, 158, 11, 0.2); 
+      color: #fcd34d; 
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .low-priority { 
+      background: rgba(34, 197, 94, 0.2); 
+      color: #86efac; 
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .task-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .task-actions button {
+      padding: 0.4rem;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      font-size: 0.9rem;
+    }
+    .complete-btn {
+      color: #64748b;
+    }
+    .complete-btn:hover {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+    }
+    .delete-btn {
+      color: #64748b;
+    }
+    .delete-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .ai-suggestions-panel {
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(49, 46, 129, 0.95));
+      backdrop-filter: blur(20px);
+      border-radius: 2rem;
+      padding: 2rem;
+      margin: 1.5rem 0 0.8rem;
+      color: #f1f5f9;
+      border: 2px solid rgba(129, 140, 248, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 80px rgba(99, 102, 241, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .ai-suggestions-panel::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .ai-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+    .ai-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 12px 30px rgba(139, 92, 246, 0.6); }
+    }
+    .ai-title-section h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c084fc, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .ai-subtitle {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .suggestion-content-wrapper {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 1.2rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      position: relative;
+      z-index: 1;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    .suggestion-content-wrapper::-webkit-scrollbar {
+      width: 5px;
+    }
+    .suggestion-content-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.5);
+      border-radius: 10px;
+    }
+    .suggestion-text {
+      line-height: 1.8;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+    }
+    .suggestion-text .section-title {
+      color: #c084fc;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .suggestion-text .section-title:first-child {
+      margin-top: 0;
+    }
+    .ai-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+    .ai-action-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+    .copy-btn {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #c7d2fe;
+    }
+    .copy-btn:hover {
+      background: rgba(99, 102, 241, 0.3);
+    }
+    .close-ai-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+    .close-ai-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+    .ai-success-badge {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+      padding: 0.6rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .ai-loading {
+      text-align: center;
+      padding: 2rem;
+    }
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 1rem 0;
+    }
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #818cf8;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    .ai-loading-text {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .ai-badge {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 1rem;
+      margin-left: 0.5rem;
+      font-weight: 700;
+    }
+    .stats-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      justify-content: center;
+    }
+    .stat-card {
+      background: rgba(51, 65, 85, 0.4);
+      border-radius: 1rem;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      text-align: center;
+      min-width: 80px;
+    }
+    .stat-card .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .stat-card .stat-label {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+    
+    /* Signup page specific styles */
+    .signup-container {
+      text-align: center;
+      padding: 3rem 2rem;
+      position: relative;
+    }
+    .signup-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      border: 2px solid rgba(129, 140, 248, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .signup-icon i {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .signup-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #818cf8, #c084fc, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    .signup-subtitle {
+      font-size: 1.2rem;
+      color: #94a3b8;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    .signup-subtitle span {
+      color: #c084fc;
+      font-weight: 600;
+    }
+    .google-btn {
+      background: white;
+      color: #1e293b;
+      border: 2px solid #e2e8f0;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+    }
+    .google-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      border-color: #818cf8;
+    }
+    .google-btn i {
+      font-size: 1.3rem;
+      color: #4285f4;
+    }
+    .signup-footer {
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .signup-footer i {
+      color: #ef4444;
+      animation: heartBeat 1.5s ease-in-out infinite;
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .decorative-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.05);
+      z-index: 0;
+    }
+    .circle-1 {
+      width: 200px;
+      height: 200px;
+      top: -50px;
+      right: -50px;
+      animation: floatSlow 6s ease-in-out infinite;
+    }
+    .circle-2 {
+      width: 150px;
+      height: 150px;
+      bottom: -30px;
+      left: -30px;
+      animation: floatSlow 8s ease-in-out infinite reverse;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, -20px); }
+    }
+    
+    @media (max-width: 500px) {
+      .glass-container {
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .task-input-area {
+        flex-direction: column;
+      }
+      .signup-title {
+        font-size: 2rem;
+      }
+      .signup-icon {
+        width: 80px;
+        height: 80px;
+      }
+      .signup-icon i {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="glass-container" id="appContainer">
+  <div id="dynamicUI"></div>
+</div>
+
+<script> 
+  // ==================== FIREBASE CONFIGURATION ====================
+  // These placeholders will be replaced by Vercel during build
+  const firebaseConfig = {
+    apiKey: "{{FIREBASE_API_KEY}}",
+    authDomain: "{{FIREBASE_AUTH_DOMAIN}}",
+    projectId: "{{FIREBASE_PROJECT_ID}}",
+    storageBucket: "{{FIREBASE_STORAGE_BUCKET}}",
+    messagingSenderId: "{{FIREBASE_MESSAGING_SENDER_ID}}",
+    appId: "{{FIREBASE_APP_ID}}"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ==================== AI API CONFIGURATION ====================
+  const AI_API_KEY = "{{GROQ_API_KEY}}";
+  const AI_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+  const AI_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
+
+  // ==================== GLOBAL STATE ====================
+  let currentUser = null;
+  let tasks = [];
+  let unsubscribeTasks = null;
+
+  // ==================== UI RENDERING ====================
+  function renderUI() {
+    const container = document.getElementById('dynamicUI');
+    if (!container) return;
+    
+    if (currentUser) {
+      container.innerHTML = `
+        <div class="auth-section">
+          <div class="user-info">
+            <i class="fas fa-brain"></i>
+            <span id="userEmail">${currentUser.email || 'User'}</span>
+          </div>
+          <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        <div id="appMain">
+          <h1>
+            <i class="fas fa-brain"></i> TaskMind
+            <span class="ai-badge">AI Powered</span>
+          </h1>
+          <div class="stats-row" id="statsRow"></div>
+          <div class="task-input-area">
+            <input type="text" id="taskInput" placeholder="🧠 What task do you want to accomplish?" autocomplete="off">
+            <input type="date" id="taskDeadline" title="Set deadline (optional)">
+            <button id="addTaskBtn" class="primary-btn"><i class="fas fa-plus-circle"></i> Add Task</button>
+          </div>
+          <div class="tasks-header">
+            <h2><i class="fas fa-list-check"></i> Tasks</h2>
+            <div style="display:flex; gap:10px;">
+              <button id="filterAll" class="ai-btn" style="background: rgba(51,65,85,0.5); border:1px solid rgba(148,163,184,0.2);">All</button>
+              <button id="filterActive" class="ai-btn" style="background: rgba(51,65,85,0.5); border:1px solid rgba(148,163,184,0.2);">Active</button>
+              <button id="filterCompleted" class="ai-btn" style="background: rgba(51,65,85,0.5); border:1px solid rgba(148,163,184,0.2);">Done</button>
+              <button id="aiSuggestBtn" class="ai-btn"><i class="fas fa-wand-magic-sparkles"></i> AI Organize</button>
+            </div>
+          </div>
+          <ul id="taskList" class="task-list"></ul>
+          <div id="aiPanel" class="ai-suggestions-panel" style="display: none;">
+            <div class="ai-header">
+              <div class="ai-icon">
+                <i class="fas fa-brain"></i>
+              </div>
+              <div class="ai-title-section">
+                <h3>AI Task Analysis</h3>
+                <div class="ai-subtitle">Smart organization & prioritization</div>
+              </div>
+              <button id="closeAiPanel" class="close-ai-btn ai-action-btn" style="margin-left: auto;">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
+            <div class="suggestion-content-wrapper">
+              <div id="suggestionContent" class="suggestion-text">
+                <div class="ai-loading">
+                  <div class="ai-icon" style="margin: 0 auto 1rem;">
+                    <i class="fas fa-robot"></i>
+                  </div>
+                  <p style="color: #cbd5e1;">Click <strong style="color: #c084fc;">AI Organize</strong> to analyze your tasks</p>
+                  <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Get smart prioritization and action plans</p>
+                </div>
+              </div>
+            </div>
+            <div class="ai-actions">
+              <button class="ai-action-btn copy-btn" onclick="copyAISuggestions()">
+                <i class="far fa-copy"></i> Copy
+              </button>
+            </div>
+            <div id="aiSuccessBadge" style="display: none;"></div>
+          </div>
+        </div>
+      `;
+      attachAppListeners();
+      loadUserTasks();
+    } else {
+      container.innerHTML = `
+        <div class="signup-container">
+          <div class="decorative-circle circle-1"></div>
+          <div class="decorative-circle circle-2"></div>
+          
+          <div class="signup-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          
+          <h1 class="signup-title">TaskMind</h1>
+          
+          <p class="signup-subtitle">
+            Organize your tasks with <span>AI-powered intelligence</span>.<br>
+            Smart prioritization, deadlines, and productivity insights.
+          </p>
+          
+          <button id="loginBtn" class="google-btn">
+            <i class="fab fa-google"></i>
+            Continue with Google
+          </button>
+          
+          <p class="signup-footer">
+            Made with <i class="fas fa-heart"></i> for productivity • Secure & Free
+          </p>
+        </div>
+      `;
+      document.getElementById('loginBtn').addEventListener('click', signInWithGoogle);
+    }
+  }
+
+  // ==================== AUTHENTICATION ====================
+  function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(error => {
+      alert("Login failed: " + error.message);
+    });
+  }
+
+  function signOut() {
+    auth.signOut();
+  }
+
+  // ==================== FIRESTORE OPERATIONS ====================
+  function getUserTasksRef() {
+    if (!currentUser) return null;
+    return db.collection('users').doc(currentUser.uid).collection('tasks');
+  }
+
+  function loadUserTasks() {
+    if (!currentUser) return;
+    if (unsubscribeTasks) unsubscribeTasks();
+    
+    const tasksRef = getUserTasksRef();
+    if (!tasksRef) return;
+    
+    unsubscribeTasks = tasksRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+      tasks = [];
+      snapshot.forEach(doc => {
+        tasks.push({ id: doc.id, ...doc.data() });
+      });
+      renderTasksList();
+      updateStats();
+    }, error => {
+      console.error("Error loading tasks:", error);
+    });
+  }
+
+  function updateStats() {
+    const statsRow = document.getElementById('statsRow');
+    if (!statsRow) return;
+    
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
+    const active = total - completed;
+    const overdue = tasks.filter(t => !t.completed && t.deadline && new Date(t.deadline) < new Date()).length;
+    
+    statsRow.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-number">${total}</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${active}</div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${completed}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      ${overdue > 0 ? `
+      <div class="stat-card" style="border-color: rgba(239,68,68,0.3);">
+        <div class="stat-number" style="color: #fca5a5;">${overdue}</div>
+        <div class="stat-label">Overdue</div>
+      </div>` : ''}
+    `;
+  }
+
+  let currentFilter = 'all';
+
+  function renderTasksList(filter = 'all') {
+    currentFilter = filter;
+    const listEl = document.getElementById('taskList');
+    if (!listEl) return;
+    
+    let filteredTasks = tasks;
+    if (filter === 'active') {
+      filteredTasks = tasks.filter(t => !t.completed);
+    } else if (filter === 'completed') {
+      filteredTasks = tasks.filter(t => t.completed);
+    }
+    
+    if (filteredTasks.length === 0) {
+      listEl.innerHTML = `
+        <li style="text-align: center; color: #64748b; padding: 2.5rem 1rem;">
+          <i class="fas fa-brain" style="font-size:3rem; display:block; margin-bottom:1rem; opacity:0.2;"></i>
+          <p>${filter === 'completed' ? 'No completed tasks yet' : 'No tasks yet. Start adding!'}</p>
+        </li>`;
+      return;
+    }
+    
+    listEl.innerHTML = filteredTasks.map(task => {
+      let priorityClass = '';
+      let priorityEmoji = '';
+      if (task.priority === 'high') {
+        priorityClass = 'high-priority';
+        priorityEmoji = '🔴';
+      } else if (task.priority === 'medium') {
+        priorityClass = 'medium-priority';
+        priorityEmoji = '🟡';
+      } else if (task.priority === 'low') {
+        priorityClass = 'low-priority';
+        priorityEmoji = '🟢';
+      }
+      
+      const deadlineDate = task.deadline ? new Date(task.deadline) : null;
+      const isOverdue = deadlineDate && !task.completed && deadlineDate < new Date();
+      const formattedDeadline = deadlineDate ? deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      
+      return `
+        <li class="task-item ${task.completed ? 'completed' : ''}">
+          <div class="task-left">
+            <button class="complete-btn" onclick="toggleTaskComplete('${task.id}', ${!task.completed})" title="${task.completed ? 'Mark incomplete' : 'Mark complete'}">
+              <i class="far ${task.completed ? 'fa-check-circle' : 'fa-circle'}"></i>
+            </button>
+            <div>
+              <span class="task-text">${escapeHtml(task.text)}</span>
+              <div class="task-meta" style="margin-top:5px;">
+                ${task.priority ? `<span class="priority-badge ${priorityClass}">${priorityEmoji} ${task.priority.toUpperCase()}</span>` : ''}
+                ${task.deadline ? `<span class="deadline-badge ${isOverdue ? 'overdue' : ''}"><i class="far fa-calendar"></i> ${formattedDeadline} ${isOverdue ? '⚠️' : ''}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="delete-btn" onclick="deleteTask('${task.id}')" title="Delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </li>
+      `;
+    }).join('');
+  }
+
+  window.toggleTaskComplete = async function(taskId, completed) {
+    const tasksRef = getUserTasksRef();
+    if (!tasksRef) return;
+    try {
+      await tasksRef.doc(taskId).update({ 
+        completed: completed,
+        completedAt: completed ? firebase.firestore.FieldValue.serverTimestamp() : null
+      });
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  window.deleteTask = async function(taskId) {
+    if (!confirm("Delete this task?")) return;
+    const tasksRef = getUserTasksRef();
+    if (!tasksRef) return;
+    try {
+      await tasksRef.doc(taskId).delete();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  async function addNewTask() {
+    const input = document.getElementById('taskInput');
+    const deadlineInput = document.getElementById('taskDeadline');
+    if (!input) return;
+    
+    const text = input.value.trim();
+    if (!text) {
+      alert("Please enter a task!");
+      return;
+    }
+    
+    const deadline = deadlineInput?.value || null;
+    
+    const tasksRef = getUserTasksRef();
+    if (!tasksRef) return;
+    
+    try {
+      await tasksRef.add({
+        text: text,
+        deadline: deadline,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        priority: null,
+        completed: false,
+        completedAt: null
+      });
+      input.value = '';
+      if (deadlineInput) deadlineInput.value = '';
+      input.focus();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  }
+
+  // ==================== AI INTEGRATION ====================
+  async function getAISuggestions(taskList) {
+    if (!AI_API_KEY || AI_API_KEY === "{{GROQ_API_KEY}}") {
+      return "⚠️ Please configure your Groq API key in Vercel environment variables.";
+    }
+    
+    if (taskList.length === 0) {
+      return "📭 Add some tasks first!";
+    }
+    
+    const tasksWithDetails = taskList.map((t, i) => {
+      let detail = `${i+1}. "${t.text}"`;
+      if (t.deadline) detail += ` [Deadline: ${new Date(t.deadline).toLocaleDateString()}]`;
+      if (t.completed) detail += ` [COMPLETED]`;
+      return detail;
+    }).join('\n');
+    
+    const systemPrompt = `You are TaskMind AI, a practical and intelligent productivity coach. Analyze tasks and give TRULY HELPFUL prioritization based on CONTEXT and COMMON SENSE.
+
+CRITICAL RULES FOR PRIORITIZATION:
+- "Test", "Exam", "Study", "Assignment", "Homework", "Project", "Deadline", "Work" → HIGH priority
+- "Football", "Game", "Movie", "TV", "Play", "Fun", "Hobby", "Relax" → LOW priority
+- If two tasks have the same deadline, PRIORITIZE the academic/work task over leisure
+- A "test" or "exam" is ALWAYS more important than "football" or entertainment
+
+RESPONSE FORMAT - Use these exact section headers:
+
+### 🎯 Your Game Plan
+Analyze tasks intelligently. If there's a test and football with same deadline, state test comes first.
+
+### ⚡ Quick Wins
+Pick 1-2 easy tasks to build momentum.
+
+### 💡 Smart Strategy
+Share one creative productivity technique.
+
+### 🌟 Motivation Boost
+End with an uplifting message.
+
+IMPORTANT: Use this EXACT format for priorities:
+**PRIORITY: [Task Name] → HIGH/MEDIUM/LOW**
+Example:
+**PRIORITY: Test → HIGH**
+**PRIORITY: Football → LOW**`;
+
+    try {
+      const response = await fetch(AI_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${AI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Here's what I need to tackle:\n${tasksWithDetails}\n\nPlease analyze these tasks intelligently. Use the EXACT priority format specified.` }
+          ],
+          temperature: 0.7,
+          max_tokens: 700
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        return `❌ Error: ${error.error?.message || 'API error'}`;
+      }
+      
+      const data = await response.json();
+      if (data.choices?.[0]?.message?.content) {
+        return data.choices[0].message.content;
+      }
+      return "No response from AI. Try again.";
+    } catch (error) {
+      return `🌐 Network error: ${error.message}`;
+    }
+  }
+
+  async function updateTaskPriorities(aiResponse) {
+    if (!currentUser || tasks.length === 0) return 0;
+    
+    const tasksRef = getUserTasksRef();
+    if (!tasksRef) return 0;
+    
+    let updated = 0;
+    
+    const priorityRegex = /\*\*PRIORITY:\s*(.*?)\s*→\s*(HIGH|MEDIUM|LOW)\*\*/gi;
+    const matches = [...aiResponse.matchAll(priorityRegex)];
+    
+    for (const match of matches) {
+      const taskName = match[1].trim().toLowerCase();
+      const priority = match[2].trim().toLowerCase();
+      
+      for (let task of tasks) {
+        if (task.completed) continue;
+        if (task.text.toLowerCase().includes(taskName) || taskName.includes(task.text.toLowerCase())) {
+          if (task.priority !== priority) {
+            try {
+              await tasksRef.doc(task.id).update({ priority });
+              updated++;
+            } catch (e) {
+              console.warn('Update failed:', e);
+            }
+          }
+          break;
+        }
+      }
+    }
+    
+    return updated;
+  }
+
+  function formatAIResponse(text) {
+    let formatted = text;
+    
+    formatted = formatted
+      .replace(/### 🎯 Your Game Plan/g, '<div class="section-title">🎯 Your Game Plan</div>')
+      .replace(/### ⚡ Quick Wins/g, '<div class="section-title">⚡ Quick Wins</div>')
+      .replace(/### 💡 Smart Strategy/g, '<div class="section-title">💡 Smart Strategy</div>')
+      .replace(/### 🌟 Motivation Boost/g, '<div class="section-title">🌟 Motivation Boost</div>')
+      .replace(/### (.*)/g, '<div class="section-title">$1</div>');
+    
+    formatted = formatted.replace(
+      /\*\*PRIORITY:\s*(.*?)\s*→\s*(HIGH|MEDIUM|LOW)\*\*/gi,
+      (match, task, priority) => {
+        const colorClass = priority.toLowerCase() === 'high' ? 'priority-high' : 
+                          priority.toLowerCase() === 'medium' ? 'priority-medium' : 'priority-low';
+        return `<span class="${colorClass}" style="font-weight:700;">📌 ${task.trim()} → ${priority.toUpperCase()} PRIORITY</span>`;
+      }
+    );
+    
+    formatted = formatted
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+    
+    return formatted;
+  }
+
+  window.copyAISuggestions = function() {
+    const content = document.getElementById('suggestionContent');
+    if (!content) return;
+    
+    const text = content.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.style.background = 'rgba(34, 197, 94, 0.3)';
+      btn.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.style.background = 'rgba(99, 102, 241, 0.2)';
+        btn.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  };
+
+  async function handleAISuggest() {
+    const panel = document.getElementById('aiPanel');
+    const content = document.getElementById('suggestionContent');
+    const successBadge = document.getElementById('aiSuccessBadge');
+    
+    if (!panel || !content) return;
+    
+    panel.style.display = 'block';
+    if (successBadge) successBadge.style.display = 'none';
+    
+    content.innerHTML = `
+      <div class="ai-loading">
+        <div class="ai-icon" style="margin: 0 auto 1rem;">
+          <i class="fas fa-cog fa-spin"></i>
+        </div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <p class="ai-loading-text">Crafting your personalized plan...</p>
+      </div>
+    `;
+    
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    const suggestion = await getAISuggestions(tasks);
+    content.innerHTML = formatAIResponse(suggestion);
+    
+    const updated = await updateTaskPriorities(suggestion);
+    
+    if (updated > 0 && successBadge) {
+      successBadge.style.display = 'flex';
+      successBadge.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Updated priorities for ${updated} task(s)`;
+      setTimeout(() => {
+        if (successBadge) successBadge.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  // ==================== EVENT LISTENERS ====================
+  function attachAppListeners() {
+    document.getElementById('addTaskBtn')?.addEventListener('click', addNewTask);
+    document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+    document.getElementById('aiSuggestBtn')?.addEventListener('click', handleAISuggest);
+    
+    document.getElementById('filterAll')?.addEventListener('click', () => renderTasksList('all'));
+    document.getElementById('filterActive')?.addEventListener('click', () => renderTasksList('active'));
+    document.getElementById('filterCompleted')?.addEventListener('click', () => renderTasksList('completed'));
+    
+    document.getElementById('closeAiPanel')?.addEventListener('click', () => {
+      const panel = document.getElementById('aiPanel');
+      if (panel) panel.style.display = 'none';
+    });
+    
+    document.getElementById('taskInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addNewTask();
+    });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    if (unsubscribeTasks) {
+      unsubscribeTasks();
+      unsubscribeTasks = null;
+    }
+    tasks = [];
+    renderUI();
+  });
+</script>
+</body>
+</html>
